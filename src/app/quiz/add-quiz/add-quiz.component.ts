@@ -1,0 +1,97 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { QuizService } from '../quiz.service';
+import { Router } from '@angular/router';
+
+@Component({
+  selector: 'app-add-quiz',
+  standalone:false,
+  templateUrl: './add-quiz.component.html',
+  styleUrls: ['./add-quiz.component.css']
+})
+export class AddQuizComponent implements OnInit {
+  quizForm!: FormGroup;
+
+  constructor(
+    private fb: FormBuilder,
+    private quizService: QuizService,
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.quizForm = this.fb.group({
+      title: ['', Validators.required],
+      description: ['', Validators.required],
+      questions: this.fb.array([this.createQuestion()])
+    });
+  }
+
+  createQuestion(): FormGroup {
+    return this.fb.group({
+      text: ['', Validators.required],
+      type: ['', Validators.required],
+      options: this.fb.array([this.createOption()])
+    });
+  }
+
+  createOption(): FormGroup {
+    return this.fb.group({
+      text: ['', Validators.required],
+      isCorrect: [false]
+    });
+  }
+
+  get questions(): FormArray {
+    return this.quizForm.get('questions') as FormArray;
+  }
+
+  getOptions(questionIndex: number): FormArray {
+    return (this.quizForm.get('questions') as FormArray)
+      .at(questionIndex)
+      .get('options') as FormArray;
+  }
+
+  addQuestion(): void {
+    this.questions.push(this.createQuestion());
+  }
+
+  addOption(questionIndex: number): void {
+    this.getOptions(questionIndex).push(this.createOption());
+  }
+
+  // Cancel the last option added for a specific question
+  cancelOption(questionIndex: number) {
+    const options = this.getOptions(questionIndex);
+    if (options.length > 1) {
+      options.removeAt(options.length - 1);
+    }
+  }
+
+  // Cancel the last added question
+  cancelQuestion(questionIndex: number) {
+    this.questions.removeAt(questionIndex);
+  }
+
+  onSubmit(): void {
+    if (this.quizForm.valid) {
+      const quizData = this.quizForm.value;
+      const quizPayload = {
+        title: quizData.title,
+        description: quizData.description,
+        questions: quizData.questions.map((question: any) => ({
+          text: question.text,
+          type: question.type,
+          options: question.options.map((option: any) => ({
+            text: option.text,
+            isCorrect: option.isCorrect
+          }))
+        }))
+      };
+
+      // Send the payload to the backend
+      this.quizService.addQuiz(quizPayload).subscribe(response => {
+        this.router.navigate(['/']);  // Navigate after successful submission
+      });
+    }
+  }
+}
