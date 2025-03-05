@@ -6,8 +6,8 @@ import { QuizDetailsComponent } from './quiz-details/quiz-details.component';
 
 const routes: Routes = [
   { path: 'add-quiz', component: AddQuizComponent },
- {path: 'quiz-list', component: QuizListComponent },
- { path: 'quiz-details/:id', component: QuizDetailsComponent },
+  {path: 'quiz-list', component: QuizListComponent },
+  { path: 'quiz-details/:id', component: QuizDetailsComponent },
 ];
 
 @NgModule({
@@ -15,5 +15,5 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class AppRoutingModule {
-  
+
  }

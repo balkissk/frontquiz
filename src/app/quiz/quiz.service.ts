@@ -74,5 +74,4 @@ updateQuiz(quizId: number, quizDto: any): Observable<any> {
 }
 
 
-
 }

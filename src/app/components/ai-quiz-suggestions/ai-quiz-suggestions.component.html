@@ -1,0 +1,45 @@
+<div class="ai-quiz-container">
+  <h2>Generate AI Quiz</h2>
+
+  <!-- Input Fields -->
+  <div class="input-container">
+    <label>Topic:</label>
+    <input type="text" [(ngModel)]="topic" placeholder="Enter quiz topic" required />
+
+    <label>Number of Questions:</label>
+    <input type="number" [(ngModel)]="numQuestions" min="1" required />
+
+    <button (click)="generateQuiz()" [disabled]="loading">Generate</button>
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading">Generating quiz, please wait...</div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <!-- Display AI-Generated Quiz (Structured) -->
+  <div *ngIf="aiQuiz && aiQuiz.questions; else rawResponse">
+    <h3>{{ aiQuiz.title }}</h3>
+    <p>{{ aiQuiz.description }}</p>
+
+    <div *ngFor="let question of aiQuiz.questions; let i = index" class="question-card">
+      <p><strong>{{ i + 1 }}. {{ question.question }}</strong></p>
+
+      <ul>
+        <li *ngFor="let option of question.options">
+          <input type="checkbox" [checked]="option.correct" disabled />
+          {{ option.text }}
+        </li>
+      </ul>
+
+      <button (click)="addToQuiz(question)">Add to Quiz</button>
+    </div>
+  </div>
+
+  <!-- 🔥 Fallback: Display Raw AI Response If Format is Unexpected -->
+  <ng-template #rawResponse>
+    <h3>Raw AI Response</h3>
+    <pre>{{ rawAiText }}</pre> <!-- ✅ Displaying raw response as text -->
+  </ng-template>
+</div>
