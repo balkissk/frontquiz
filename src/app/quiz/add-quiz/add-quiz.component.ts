@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, EventEmitter, OnInit, Output} from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { QuizService } from '../quiz.service';
 import { Router } from '@angular/router';
@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 })
 export class AddQuizComponent implements OnInit {
   quizForm!: FormGroup;
+
 
   constructor(
     private fb: FormBuilder,
@@ -34,10 +35,10 @@ export class AddQuizComponent implements OnInit {
     });
   }
 
-  createOption(): FormGroup {
+  createOption(aiOption: any = null): FormGroup {
     return this.fb.group({
-      text: ['', Validators.required],
-      isCorrect: [false]
+      text: [aiOption ? aiOption.text : '', Validators.required],
+      isCorrect: [aiOption ? aiOption.correct : false]
     });
   }
 
@@ -80,18 +81,38 @@ export class AddQuizComponent implements OnInit {
         description: quizData.description,
         questions: quizData.questions.map((question: any) => ({
           text: question.text,
-          type: question.type,
+          type: question.type || 'Multiple choice', // ✅ Ensure type is always defined
           options: question.options.map((option: any) => ({
             text: option.text,
-            isCorrect: option.isCorrect
+            isCorrect: option.isCorrect || false // ✅ Ensure `isCorrect` is always a boolean
           }))
         }))
       };
 
-      // Send the payload to the backend
+      // ✅ Debugging Log (Check What is Sent to Backend)
+      console.log('Submitting Quiz:', quizPayload);
+
+      // ✅ Send the quiz to backend
       this.quizService.addQuiz(quizPayload).subscribe(response => {
-        this.router.navigate(['/']);  // Navigate after successful submission
+        this.router.navigate(['/quiz-list']);  // ✅ Navigate after successful submission
       });
+    } else {
+      console.error('Quiz Form is invalid:', this.quizForm);
     }
   }
+
+  addAiQuestion(aiQuestion: any = null): void {
+    if (!aiQuestion) return; // ✅ Avoid adding empty questions
+
+    const questionGroup = this.fb.group({
+      text: [aiQuestion.question, Validators.required],
+      type: ['Multiple choice', Validators.required],
+      options: this.fb.array(
+        aiQuestion.options ? aiQuestion.options.map((opt: any) => this.createOption(opt)) : [this.createOption()]
+      )
+    });
+
+    this.questions.push(questionGroup);
+  }
+
 }

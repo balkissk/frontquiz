@@ -1,5 +1,8 @@
-<div> <app-ai-quiz-suggestions> </app-ai-quiz-suggestions>
-<form [formGroup]="quizForm" (ngSubmit)="onSubmit()">
+<div> <app-ai-quiz-suggestions (questionAdded)="addAiQuestion($event)"></app-ai-quiz-suggestions>
+
+  <div>
+
+  <form [formGroup]="quizForm" (ngSubmit)="onSubmit()">
     <mat-card class="form-card">
       <h2 class="form-header">Add Quiz</h2>
 
@@ -64,5 +67,6 @@
       <button mat-raised-button color="accent" type="submit" [disabled]="quizForm.invalid">Add Quiz</button>
     </mat-card>
   </form>
+  </div>
 <!-- AI Quiz Suggestions Component -->
 </div>

@@ -18,18 +18,19 @@
   <!-- Error Message -->
   <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
 
-  <!-- Display AI-Generated Quiz (Structured) -->
-  <div *ngIf="aiQuiz && aiQuiz.questions; else rawResponse">
+  <!-- 🎯 Structured Quiz Display -->
+  <div *ngIf="aiQuiz && aiQuiz.questions.length; else noStructuredQuiz">
     <h3>{{ aiQuiz.title }}</h3>
     <p>{{ aiQuiz.description }}</p>
 
     <div *ngFor="let question of aiQuiz.questions; let i = index" class="question-card">
       <p><strong>{{ i + 1 }}. {{ question.question }}</strong></p>
 
+      <!-- ✅ Show options correctly -->
       <ul>
         <li *ngFor="let option of question.options">
-          <input type="checkbox" [checked]="option.correct" disabled />
-          {{ option.text }}
+          <input type="checkbox" [checked]="option.correct || false" disabled />
+          {{ option.text ? option.text : option }} <!-- ✅ Handles both object & string array -->
         </li>
       </ul>
 
@@ -37,9 +38,15 @@
     </div>
   </div>
 
-  <!-- 🔥 Fallback: Display Raw AI Response If Format is Unexpected -->
-  <ng-template #rawResponse>
+  <!-- 🔥 Always Show Raw AI Response Next to Structured View -->
+  <div class="response-box">
     <h3>Raw AI Response</h3>
-    <pre>{{ rawAiText }}</pre> <!-- ✅ Displaying raw response as text -->
+    <pre>{{ rawAiText }}</pre>
+
+  </div>
+
+  <!-- 🔥 If No Structured Quiz, Still Show Raw Response -->
+  <ng-template #noStructuredQuiz>
+    <p>No structured quiz available. Check raw response for details.</p>
   </ng-template>
 </div>
